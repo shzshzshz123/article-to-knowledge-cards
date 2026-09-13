@@ -16,3 +16,11 @@ desktop.ini
 *.tmp
 *.bak
 *~
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Packaging output
+dist/
+*.zip

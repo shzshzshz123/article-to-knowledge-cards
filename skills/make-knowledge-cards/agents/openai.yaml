@@ -1,5 +1,5 @@
 interface:
   display_name: "Make Knowledge Cards"
-  short_description: "Turn articles or Markdown/TXT files into 5-8 knowledge cards"
-  default_prompt: "Use $make-knowledge-cards to turn the article below into 5-8 knowledge cards."
+  short_description: "Turn articles or Markdown/TXT files into a compact set of knowledge cards"
+  default_prompt: "Use $make-knowledge-cards to turn the article below into knowledge cards."
   brand_color: "#2563EB"

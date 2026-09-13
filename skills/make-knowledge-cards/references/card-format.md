@@ -1,15 +1,8 @@
 # Card Format Reference
 
-Field-level rules for a single knowledge card, plus the mistakes to avoid.
-
-## Field definitions
-
-| Field | Required | Rule |
-| --- | --- | --- |
-| Title | Yes | A specific noun phrase naming one knowledge point. Must be searchable on its own. |
-| Core knowledge | Yes | Exactly one sentence. One claim, one subject. |
-| Explanation | Yes | 2-4 sentences answering why it holds, how it works, or what it implies. |
-| Example / self-test | Yes | Choose one. A self-test question, or a concrete example. |
+Field-level detail for a single card, plus the edge cases that are easy to get wrong.
+The normative rules and the output templates live in `SKILL.md`; this file only adds the
+operational detail needed to apply them.
 
 ## Title
 
@@ -24,6 +17,13 @@ Write a specific noun phrase that names the point, not the paragraph.
 
 Banned title words: `简介`, `概述`, `其他`, `补充`, `要点一/二/三`, `About`, `Misc`.
 
+Additional checks:
+
+- Keep a Chinese title within about 30 characters and an English title within about 70,
+  or the card becomes a summary sentence instead of a handle.
+- The title must be greppable: someone reading only the titles of a card set should be
+  able to reconstruct the article's outline.
+
 ## Core knowledge
 
 One sentence, one claim. It must be a statement, not a topic label.
@@ -33,26 +33,50 @@ One sentence, one claim. It must be a statement, not a topic label.
 - Poor: `睡眠以约 90 分钟为一个周期，且分为四到五个阶段，其中深睡最重要。`
   (two claims - split into separate cards)
 
+The checkable form of this rule: the sentence contains exactly one sentence-ending mark.
+Chinese connectors `并且`, `以及`, `同时`, `；` and English `and`, `while` usually mean two
+claims are hiding in one sentence.
+
 ## Explanation
 
 Explain, do not restate. The core knowledge says *what*; the explanation says *why*,
 *how*, or *so what*. Stay inside the source: if the source does not explain a mechanism,
-do not supply one from outside knowledge.
+do not supply one from outside knowledge. Two to four sentences; longer means the card is
+carrying more than one knowledge point.
 
 ## Example or self-test
 
-Choose by content type:
+`SKILL.md` defines the priority order. This section defines what counts as acceptable.
 
-- **Self-test question** - for concepts, principles, and definitions. The answer must be
-  derivable from the card's own fields, so the reader can check themselves.
-- **Example** - for methods, procedures, and case-driven content.
+**A usable source example** is a concrete case the source actually states, such as a named
+scenario, a worked calculation, a real command, or a before/after comparison. When reusing
+it:
 
-Priority order for the example field:
+- Keep the original numbers, names, and units. Do not round, simplify, or rename.
+- If it is a code block, a table, a formula, or a command, keep it verbatim inside a fenced
+  block or inline code. Do not translate code, identifiers, flags, or file paths.
+- Shorten only by trimming surrounding prose, never by paraphrasing the example itself.
+- Attribute it when the source does: `> 原文依据：<原文片段>`.
 
-1. Use an example that already exists in the source.
-2. If the source has no usable example, write a **self-test question** instead.
-3. Never invent example data (numbers, scenarios, product names) that the source does
-   not contain - that breaks the no-fabrication rule.
+**A self-test question** must be answerable from the card's own fields, so the reader can
+check the answer without going back to the source. Avoid questions that only ask for
+recall of the title, and avoid questions whose answer is not on the card.
+
+Never invent example data (numbers, scenarios, product names) that the source does not
+contain. If nothing usable exists, ask a self-test question instead.
+
+## Optional source field
+
+Add a fifth field only when the user asks for verifiable extraction (`?with-source`,
+"标注原文出处", "include sources"):
+
+```markdown
+- **原文依据**：白天学到的信息最初以不稳定的形式暂存在海马体……
+```
+
+Rules: quote at most about 40 characters, copy the exact wording, and never use this field
+to smuggle in facts the quotation does not support. The checker accepts `原文依据` and
+`Source` as known extra fields and ignores any other custom field name.
 
 ## Complete good vs. poor card
 
@@ -92,20 +116,36 @@ When the source lists several parallel rules (e.g. "使用时有三个原则"):
 
 Do not create one card per sentence just to reach the target count.
 
-### More than 8 strong points
+### More points than the ceiling
 
-Merge points that are two facets of the same idea, then keep the top 8 by importance to
-the article's central message. Never exceed 8.
+Past 12 points, merge in this order before dropping anything:
 
-### Fewer than 5 strong points
+1. Two facets of the same mechanism (e.g. "what HEAD is" and "what HEAD does").
+2. A general rule and its single illustrative detail.
+3. A definition and the conclusion that immediately follows from it.
 
-Output the real number and add a one-line note immediately after the article heading:
+Drop a point entirely only when it is a restatement or a detail with no standalone value.
+Never drop a point that carries the article's central claim.
 
-```markdown
-> 原文信息不足以支撑 5 张卡片，以下为 3 张核心卡片。
-```
+### Fewer points than expected
+
+A short card set is correct when the source is genuinely thin. It is a mistake when the
+extraction was lazy: re-read the source and check for definitions, caveats, and "why"
+statements that were skipped before concluding that only 2 points exist.
 
 ### Source is a list, changelog, or FAQ
 
 Treat each independently useful entry as a candidate point. Skip entries that are pure
-bookkeeping (version bumps with no user impact, typo fixes, links).
+bookkeeping (version bumps with no user impact, typo fixes, links). Entries sharing one
+cause belong in one card: three bug fixes with the same root cause are one knowledge
+point, not three.
+
+### Source contains code, tables, or formulas
+
+They are primary source material, not decoration:
+
+- Keep short blocks verbatim in the example field.
+- If a block is too long for a card, quote the decisive lines and say what the rest does,
+  rather than rewriting the logic in prose.
+- A table that enumerates parallel facts usually becomes one card whose explanation
+  reproduces the key rows, not one card per row.
